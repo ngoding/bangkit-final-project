@@ -1,4 +1,4 @@
-# bangkit
+# bangkit-final-project
 
 ## Project setup
 ```
