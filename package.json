@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.0.3",
     "@tensorflow-models/mobilenet": "1.0.0",
     "@tensorflow/tfjs": "1.7.4",
     "core-js": "^3.6.5",
