@@ -70,15 +70,18 @@ export default {
     webcamPredictionsMobileNet () {
       if (!this.model) return window.requestAnimationFrame(this.webcamPredictionsMobileNet);
       if (this.video.readyState < 3) return window.requestAnimationFrame(this.webcamPredictionsMobileNet);
+
       this.model.classify(this.video).then((predictions) => {
         this.result = predictions[0].className
       })
+
       setTimeout(function(){}, 1000);
       window.requestAnimationFrame(this.webcamPredictionsMobileNet)
     },
     webcamPredictionsCoco() {
-      if (!this.model) return window.requestAnimationFrame(this.webcamPredictionsMobileNet);
-      if (this.video.readyState < 3) return window.requestAnimationFrame(this.webcamPredictionsMobileNet);
+      if (!this.model) return window.requestAnimationFrame(this.webcamPredictionsCoco);
+      if (this.video.readyState < 3) return window.requestAnimationFrame(this.webcamPredictionsCoco);
+
       let self = this
       this.model.detect(this.video).then(function (predictions) {
         // Remove any highlighting we did previous frame.
