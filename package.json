@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@tensorflow-models/coco-ssd": "^2.0.3",
-    "@tensorflow-models/mobilenet": "1.0.0",
     "@tensorflow/tfjs": "1.7.4",
     "core-js": "^3.6.5",
+    "face-api.js": "^0.22.2",
     "vue": "^2.6.11",
     "vue-async-computed": "^3.8.2",
     "vue-spinner": "^1.0.3"
