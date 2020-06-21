@@ -3,7 +3,6 @@
     <Bangkit/>
   </div>
 </template>
-
 <script>
 import Bangkit from './components/Bangkit.vue'
 
