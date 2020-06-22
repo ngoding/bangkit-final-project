@@ -135,7 +135,9 @@ def predict():
     predicted_class = model_vector_classifier.predict_classes(embedding)
     probability = list(model_vector_classifier.predict(embedding)[0])
     predicted_name = face_classes[predicted_class[0]]
-    result = f'Predicted {clean_name(predicted_name)} with probabilty {probability[predicted_class[0]]*100:.2f}%'
+    name = f'Predicted {clean_name(predicted_name)} with probabilty '
+    formatted_probability = f'{probability[predicted_class[0]]*100:.2f}%'
+    result = name + formatted_probability
 
     return result
 
