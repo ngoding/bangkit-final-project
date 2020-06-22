@@ -10,8 +10,17 @@
 
     <button @click="changeCamera()">Change camera</button>
     <div id="liveView" class="webcam">
-      <p id="webcamPredictions">{{this.result}}</p>
       <video v-bind:class="{ mirror: this.frontCamera }" id="video" autoplay muted playsinline/>
+    </div>
+    <p>{{this.result}}</p>
+    <div v-if="this.topTen">
+      <p>Top ten match</p>
+      <ul>
+        <li v-for="match in this.topTen" :key="match[0]">
+          {{`${match[0]} (${match[1].toFixed(3)}%)`}}
+        </li>
+      </ul>
+
     </div>
 
   </div>
@@ -19,11 +28,11 @@
 
 <script>
 import Vue from 'vue'
+import axios from 'axios'
 import AsyncComputed from 'vue-async-computed'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
-const nj = require('../../public/numjs')
+// const nj = require('../../public/numjs')
 
-// import * as tf from '@tensorflow/tfjs';
 import * as faceApi from 'face-api.js'
 
 Vue.use(AsyncComputed)
@@ -52,9 +61,11 @@ export default {
       frontCamera: true,
       displaySize: null,
       initialise: true,
+      imageCapture: null,
       canvas: null,
       result: null,
-      test:null
+      test:null,
+      topTen: null
     }
   },
   methods: {
@@ -78,6 +89,7 @@ export default {
         video: {facingMode: this.frontCamera ? 'user' : 'environment'}
       })
       this.video.srcObject = stream
+      this.imageCapture = new ImageCapture(stream.getVideoTracks()[0])
       this.checkVideoReady()
     },
     async loadModel () {
@@ -96,9 +108,9 @@ export default {
 
       // use mtcnn
       let result = await faceApi.detectSingleFace(this.video, new faceApi.MtcnnOptions({minFaceSize: 160}))
+
       if (result && this.initialise) {
-        console.log(result)
-        this.test = nj.array([1,2,3])
+        this.namePredictions()
         this.initialise = false
       }
 
@@ -114,6 +126,30 @@ export default {
       this.clearCanvas()
       faceApi.draw.drawDetections(this.canvas, result)
       setTimeout(window.requestAnimationFrame(this.webcamPredictions), 200)
+    },
+    async namePredictions(){
+      if (!this.videoReady) return setTimeout(window.requestAnimationFrame(this.namePredictions), 1000)
+      let data = new FormData()
+      data.append('name', 'image')
+      let config = {
+        header : {
+          'Content-Type' : 'multipart/form-data'
+        }
+      }
+
+      await this.imageCapture.takePhoto().then((blob) => {
+        data.append('image', blob)
+      })
+
+      await axios.post(`http://localhost:3000/predict`,data, config)
+        .then(response => {
+          this.result = `${response.data.name} with ${response.data.probability.toFixed(3)} % probability`
+          this.topTen = response.data.top10
+        })
+        .catch(e => {
+          this.errors.push(e)
+        })
+      setTimeout(window.requestAnimationFrame(this.namePredictions), 2000)
     },
     createCanvas() {
       if (!this.videoReady) return setTimeout(window.requestAnimationFrame(this.createCanvas), 1000);
@@ -159,7 +195,7 @@ ul {
   padding: 0;
 }
 li {
-  display: inline-block;
+  display: block;
   margin: 0 10px;
 }
 a {

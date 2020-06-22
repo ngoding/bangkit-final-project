@@ -10,6 +10,7 @@
   "dependencies": {
     "@tensorflow-models/coco-ssd": "^2.0.3",
     "@tensorflow/tfjs": "1.7.4",
+    "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "face-api.js": "^0.22.2",
     "vue": "^2.6.11",
