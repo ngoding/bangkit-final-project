@@ -62,6 +62,11 @@ model_vector_classifier = load_model('models/vector_classifier.h5')
 face_classes = json.load(open('models/label_classes.json'))
 
 
+@app.route('/')
+def hello():
+    return 'Hello world!'
+
+
 @app.route('/get-embeddings', methods=['POST'])
 def embeddings():
     uploaded_image = request.files['image']

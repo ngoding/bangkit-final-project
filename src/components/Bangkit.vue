@@ -152,7 +152,7 @@ export default {
         data.append('image', blob)
       })
 
-      await axios.post(`http://localhost:3000/predict`,data, config)
+      await axios.post(`https://api.bangkit.risyad.cloud/predict`,data, config)
         .then(response => {
           // this.result = `${response.data.name} with ${response.data.probability.toFixed(3)} % probability`
           // this.topTen = response.data.top10
