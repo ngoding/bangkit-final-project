@@ -12,9 +12,10 @@
     <div id="liveView" class="webcam">
       <video v-bind:class="{ mirror: this.frontCamera }" id="video" autoplay muted playsinline/>
     </div>
-    <p>{{this.result}}</p>
+
+    <!-- <p>{{this.result}}</p> -->
     <div v-if="this.topTen">
-      <p>Top ten match</p>
+      <p>Top ten match:</p>
       <ul>
         <li v-for="match in this.topTen" :key="match[0]">
           {{`${match[0]} (${match[1].toFixed(3)}%)`}}
@@ -31,9 +32,13 @@ import Vue from 'vue'
 import axios from 'axios'
 import AsyncComputed from 'vue-async-computed'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
-// const nj = require('../../public/numjs')
 
 import * as faceApi from 'face-api.js'
+
+// in-browser prediction failed. Solution: backend prediction.
+// const nj = require('../../public/numjs')
+// import * as tf from '@tensorflow/tfjs'
+// import classes from '../../public/label_classes.json'
 
 Vue.use(AsyncComputed)
 
@@ -62,9 +67,11 @@ export default {
       displaySize: null,
       initialise: true,
       imageCapture: null,
+      faceNetModel: null,
+      vectorClassifierModel: null,
+      // labelClasses: classes,
       canvas: null,
       result: null,
-      test:null,
       topTen: null
     }
   },
@@ -96,8 +103,11 @@ export default {
       // use mtcnn
       await faceApi.nets.mtcnn.loadFromUri('/models')
 
-      // use tiny face
-      // await faceApi.nets.tinyFaceDetector.loadFromUri('/models')
+      // lambda layers not supported in js. Solution: get embeddings from backend
+      // this.faceNetModel = await tf.loadLayersModel('/models/facenet/model.json');
+
+      // tensor number mismatch. Solution: full prediction from backend.
+      // this.vectorClassifierModel = await tf.loadLayersModel('/models/vector_classifier/model.json');
 
       this.loadingModel = false
       this.webcamPredictions()
@@ -143,14 +153,32 @@ export default {
 
       await axios.post(`http://localhost:3000/predict`,data, config)
         .then(response => {
-          this.result = `${response.data.name} with ${response.data.probability.toFixed(3)} % probability`
+          // this.result = `${response.data.name} with ${response.data.probability.toFixed(3)} % probability`
           this.topTen = response.data.top10
         })
         .catch(e => {
-          this.errors.push(e)
+          console.log(e)
         })
+
+      // tensor error, could not proceed.
+      // await axios.post(`http://localhost:3000/get-embeddings`,data, config)
+      //   .then(response => {
+      //     console.log(response)
+      //     const embedding = nj.array(response.data.embedding)
+      //     console.log(embedding)
+      //     // const predictedClass = this.vectorClassifierModel.predict_classes(embedding)
+      //     const probability = this.vectorClassifierModel.predict(embedding)
+      //     console.log(probability)
+      //     // predicted_name = face_classes[predicted_class[0]]
+      //   })
+      //   .catch(e => {
+      //     console.log(e)
+      //   })
       setTimeout(window.requestAnimationFrame(this.namePredictions), 2000)
     },
+    // predictName() {
+
+    // },
     createCanvas() {
       if (!this.videoReady) return setTimeout(window.requestAnimationFrame(this.createCanvas), 1000);
       this.canvas = faceApi.createCanvasFromMedia(this.video)

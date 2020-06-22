@@ -1,0 +1,9 @@
+Flask==1.1.2
+Flask-Cors==3.0.8
+mtcnn==0.1.0
+numpy==1.19.0
+Pillow==7.1.2
+sklearn==0.0
+scikit-image==0.16.2
+scikit-learn==0.22.2.post1
+tensorflow==2.2.0
