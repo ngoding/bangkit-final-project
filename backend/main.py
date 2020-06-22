@@ -19,13 +19,14 @@ from mtcnn.mtcnn import MTCNN
 
 from keras.models import load_model
 
-from sklearn.preprocessing import LabelEncoder
-from sklearn.externals import joblib
+# from sklearn.preprocessing import LabelEncoder
+# from sklearn.externals import joblib
 
 import numpy as np
 from numpy import asarray
 
 from PIL import Image
+import json
 
 
 # If `entrypoint` is not defined in app.yaml, App Engine will look for an app
@@ -53,10 +54,12 @@ def top_10_prediction(prob, labels):
 
 
 # load model
-encoder = LabelEncoder()
-encoder.classes_ = np.load('models/face_classes.npy')
-model_svm = joblib.load('models/svm_model.pkl')
+# encoder = LabelEncoder()
+# encoder.classes_ = np.load('models/face_classes.npy')
+# model_svm = joblib.load('models/svm_model.pkl')
 model_facenet = load_model('models/facenet_keras.h5')
+model_vector_classifier = load_model('models/vector_classifier.h5')
+face_classes = json.load(open('models/label_classes.json'))
 
 
 @app.route('/get-embeddings', methods=['POST'])
@@ -121,19 +124,26 @@ def predict():
     embedding = model_facenet.predict(samples)  # get the embedding
 
     # predict
-    predicted_class = model_svm.predict(embedding)
-    object_classes = encoder.classes_
-    names = object_classes.tolist()
-    predicted_name = clean_name(names[predicted_class[0]])
-    probabilities = model_svm.predict_proba(embedding)[0]
-    predicted_probability = probabilities[predicted_class] * 100
-    top_10 = top_10_prediction(probabilities, encoder.classes_)
+    # predicted_class = model_svm.predict(embedding)
+    # object_classes = encoder.classes_
+    # names = object_classes.tolist()
+    # predicted_name = clean_name(names[predicted_class[0]])
+    # probabilities = model_svm.predict_proba(embedding)[0]
+    # predicted_probability = probabilities[predicted_class] * 100
+    # top_10 = top_10_prediction(probabilities, encoder.classes_)
 
-    return {
-        'name': predicted_name,
-        'probability': predicted_probability[0],
-        'top10': top_10
-    }
+    predicted_class = model_vector_classifier.predict_classes(embedding)
+    probability = list(model_vector_classifier.predict(embedding)[0])
+    predicted_name = face_classes[predicted_class[0]]
+    result = f'Predicted {clean_name(predicted_name)} with probabilty {probability[predicted_class[0]]*100:.2f}%'
+
+    return result
+
+    # return {
+    #     'name': predicted_name,
+    #     'probability': predicted_probability[0],
+    #     'top10': top_10
+    # }
 
 
 if __name__ == '__main__':

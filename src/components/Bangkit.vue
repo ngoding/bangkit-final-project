@@ -13,7 +13,8 @@
       <video v-bind:class="{ mirror: this.frontCamera }" id="video" autoplay muted playsinline/>
     </div>
 
-    <!-- <p>{{this.result}}</p> -->
+    <p>{{this.result}}</p>
+
     <div v-if="this.topTen">
       <p>Top ten match:</p>
       <ul>
@@ -154,7 +155,8 @@ export default {
       await axios.post(`http://localhost:3000/predict`,data, config)
         .then(response => {
           // this.result = `${response.data.name} with ${response.data.probability.toFixed(3)} % probability`
-          this.topTen = response.data.top10
+          // this.topTen = response.data.top10
+          this.result = response.data
         })
         .catch(e => {
           console.log(e)
