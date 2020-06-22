@@ -25,5 +25,5 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 ADD . /app/
 
-CMD gunicorn -b :8080 main:app
+CMD gunicorn -t 240 -b :8080 --worker-class=gthread main:app
 # [END dockerfile]
